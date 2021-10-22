@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Horizontal Stacked Bar Chart</title>
+    <script src="../libs/d3/d3.min.js"></script>
+
+</head>
+<body>
+    <h3>d3 Line Generator</h3>
+<div id = "container" style="width: 100%">
+<!-- <svg id="main" width="100%" height="100%" viewBox="0 0 1000 800"> -->
+
+<!-- </svg> -->
+</div>
+<script>
+
+    let svg = d3.selectAll('#container') 
+                .append('svg') 
+                .attr('width','100%') 
+                .attr('height','100%') 
+                .attr('viewBox','0 0 1000 800')
+                .style('background-color','white'); 
+    let margins = 100;
+    let width = 1000 - 2 * margins;
+    let height = 800 - 2 * margins;
+    const loadData = d3.csv("data_sample.csv", 
+                        function(d) {
+                            return {
+                                date: new Date(d.date),
+                                EstimatedCost: Number(d.EstimatedCost),
+                                RawMaterial:  Number(d.RawMaterial),
+                                Workmanship:  Number(d.Workmanship),
+                                YearlyStorage: Number(d.YearlyStorage)
+                                }
+                            })
+                            loadData.then(data=> 
+                            {
+                            console.log(data);
+                            //use line generator to stack data
+                            //    let lines = d3.line((["EstimatedCost","RawMaterial","Workmanship","YearlyStorage"]) 
+                            //    let stackedSeries = lines(data)
+                            //    console.log(stackedSeries)
+
+                                let x = d3.scaleTime().domain(d3.extent(data, function(d){return d.date;}))
+                                                        .range([margins,width]);
+                                // console.log(data, function(d){return d.date;});
+                                let y = d3.scaleLinear().domain([0,d3.max(data, function(d){return d.RawMaterial;})])
+                                                        .range([height,margins]);
+                                
+
+                            // now load data into a line
+                                let line = d3.line()
+                                        .x(function(d) { return x(d.date);})
+                                        // console.log(x(d.date))
+                                        .y(function(d) {return y(d.RawMaterial);});
+
+                                //let lines = groups.selectAll('line').data(function(d){return d}).enter().append('line')
+                                // var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
+                                //             .key(function(d) { return d.date;})
+                                //             .entries(data);    
+                            // append path to svg elements
+                                
+                            
+                            // var browser = graph.selectAll('.browser')
+                            //                     .data(data)
+                            //                     .enter()
+                            //                     .append('g')
+                            //                     .attr('class', 'browser')
+                            
+                                svg.append("path")
+                                    .data([data])
+                                    .attr("class","line")
+                                    .attr("d",line)
+                                    .style("fill","none")
+                                    .style("stroke","black")
+                                    .style("stroke-width","2px")
+
+                                let y_axis = svg.append("g")
+                                    .attr("transform","translate(90,0)")
+                                        .attr("class","yAxis")
+                                        .call(d3.axisLeft(y));
+                                
+                                let x_axis = svg.append("g")
+                                    .attr("transform","translate(0, 600)")
+                                        .attr("class","xAxis")
+                                        .call(d3.axisBottom(x));
+                                
+
+
+
+                                
+                        })
+</script>
+</body>
+</html>
